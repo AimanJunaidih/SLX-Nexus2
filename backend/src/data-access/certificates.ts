@@ -1,4 +1,4 @@
-import type { Certificate } from '../entities/certificate';
+import type { Certificate } from '../certificates/certificate.model';
 
 export const certificates: Certificate[] = [
   {

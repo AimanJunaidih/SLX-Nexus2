@@ -1,4 +1,4 @@
-import type { Company } from '../entities/company';
+import type { Company } from '../companies/company.model';
 
 export const companies: Company[] = [
   {

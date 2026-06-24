@@ -1,4 +1,4 @@
-import type { ScheduleDay } from '../entities/schedule';
+import type { ScheduleDay } from '../schedule/schedule.model';
 
 export const scheduleData: ScheduleDay[] = [
   {

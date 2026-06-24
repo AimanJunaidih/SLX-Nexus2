@@ -1,4 +1,4 @@
-import type { Material } from '../entities/material';
+import type { Material } from '../materials/material.model';
 
 export const materials: Material[] = [
   {

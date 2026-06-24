@@ -1,4 +1,4 @@
-import type { Participant, ModuleStatus } from '../entities/participant';
+import type { Participant, ModuleStatus } from '../participants/participant.model';
 
 export const participants: Participant[] = [
   {

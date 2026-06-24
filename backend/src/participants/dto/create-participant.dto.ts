@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ModuleStatus } from '../entities/participant';
+import { ModuleStatus } from '../participant.model';
 
 export class CreateParticipantDto {
   @ApiProperty({ example: 'p50', description: 'The unique ID of the participant' })

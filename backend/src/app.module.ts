@@ -2,13 +2,18 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { DataController } from './data.controller';
 import { SeederService } from './seeder.service';
-import { Company } from './entities/company';
-import { Participant } from './entities/participant';
-import { Material } from './entities/material';
-import { Certificate } from './entities/certificate';
-import { ScheduleDay } from './entities/schedule';
+
+import { ParticipantsModule } from './participants/participants.module';
+import { CompaniesModule } from './companies/companies.module';
+import { MaterialsModule } from './materials/materials.module';
+import { CertificatesModule } from './certificates/certificates.module';
+import { ScheduleModule } from './schedule/schedule.module';
+import { Company } from './companies/company.model';
+import { Participant } from './participants/participant.model';
+import { Material } from './materials/material.model';
+import { Certificate } from './certificates/certificate.model';
+import { ScheduleDay } from './schedule/schedule.model';
 
 @Module({
   imports: [
@@ -19,12 +24,17 @@ import { ScheduleDay } from './entities/schedule';
       username: 'root',
       password: '',
       database: 'slx_nexus2',
-      entities: [Company, Participant, Material, Certificate, ScheduleDay],
+      autoLoadEntities: true,
       synchronize: true,
     }),
     TypeOrmModule.forFeature([Company, Participant, Material, Certificate, ScheduleDay]),
+    ParticipantsModule,
+    CompaniesModule,
+    MaterialsModule,
+    CertificatesModule,
+    ScheduleModule,
   ],
-  controllers: [AppController, DataController],
+  controllers: [AppController],
   providers: [AppService, SeederService],
 })
 export class AppModule {}

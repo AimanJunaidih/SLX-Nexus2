@@ -10,21 +10,21 @@ export class Company {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   industry: string;
 
-  @Column()
+  @Column({ nullable: true })
   contactName: string;
 
-  @Column()
+  @Column({ nullable: true })
   contactEmail: string;
 
-  @Column('int')
+  @Column('int', { default: 0 })
   participantCount: number;
 
-  @Column('int')
+  @Column('int', { default: 0 })
   completionPct: number;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', default: 'pending' })
   engagementStatus: EngagementStatus;
 }

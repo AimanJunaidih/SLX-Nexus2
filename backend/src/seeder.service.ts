@@ -2,11 +2,11 @@ import { Injectable, OnApplicationBootstrap, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { Company } from './entities/company';
-import { Participant } from './entities/participant';
-import { Material } from './entities/material';
-import { Certificate } from './entities/certificate';
-import { ScheduleDay } from './entities/schedule';
+import { Company } from './companies/company.model';
+import { Participant } from './participants/participant.model';
+import { Material } from './materials/material.model';
+import { Certificate } from './certificates/certificate.model';
+import { ScheduleDay } from './schedule/schedule.model';
 
 import { companies } from './data-access/companies';
 import { participants } from './data-access/participants';
