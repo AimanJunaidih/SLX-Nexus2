@@ -9,11 +9,21 @@ import { CompaniesModule } from './companies/companies.module';
 import { MaterialsModule } from './materials/materials.module';
 import { CertificatesModule } from './certificates/certificates.module';
 import { ScheduleModule } from './schedule/schedule.module';
+import { TrainingSessionsModule } from './training-sessions/training-sessions.module';
+import { PostTrainingTasksModule } from './post-training-tasks/post-training-tasks.module';
+import { PostTrainingTask } from './post-training-tasks/post-training-task.model';
+import { PreTrainingTasksModule } from './pre-training-tasks/pre-training-tasks.module';
+import { PreTrainingTask } from './pre-training-tasks/pre-training-task.model';
+import { AttendanceModule } from './attendance/attendance.module';
+import { Attendance } from './attendance/attendance.model';
 import { Company } from './companies/company.model';
 import { Participant } from './participants/participant.model';
 import { Material } from './materials/material.model';
 import { Certificate } from './certificates/certificate.model';
 import { ScheduleDay } from './schedule/schedule.model';
+import { TrainingSession } from './training-sessions/training-session.model';
+import { SessionCompany } from './training-sessions/session-company.model';
+import { SessionParticipant } from './training-sessions/session-participant.model';
 
 @Module({
   imports: [
@@ -27,12 +37,16 @@ import { ScheduleDay } from './schedule/schedule.model';
       autoLoadEntities: true,
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([Company, Participant, Material, Certificate, ScheduleDay]),
+    TypeOrmModule.forFeature([Company, Participant, Material, Certificate, ScheduleDay, TrainingSession, SessionCompany, SessionParticipant, PostTrainingTask, PreTrainingTask, Attendance]),
     ParticipantsModule,
     CompaniesModule,
     MaterialsModule,
     CertificatesModule,
     ScheduleModule,
+    TrainingSessionsModule,
+    PostTrainingTasksModule,
+    PreTrainingTasksModule,
+    AttendanceModule,
   ],
   controllers: [AppController],
   providers: [AppService, SeederService],

@@ -3,6 +3,7 @@ import type { Certificate } from '../certificates/certificate.model';
 export const certificates: Certificate[] = [
   {
     id: 'cert1',
+    sessionId: 'ts1',
     participantId: 'p4',
     participantName: 'David Park',
     company: 'ByteWave',
@@ -13,6 +14,7 @@ export const certificates: Certificate[] = [
   },
   {
     id: 'cert2',
+    sessionId: 'ts1',
     participantId: 'p10',
     participantName: 'Jack Brown',
     company: 'ByteWave',
@@ -23,6 +25,7 @@ export const certificates: Certificate[] = [
   },
   {
     id: 'cert3',
+    sessionId: 'ts2',
     participantId: 'p3',
     participantName: 'Carol Kim',
     company: 'ByteWave',
@@ -33,6 +36,7 @@ export const certificates: Certificate[] = [
   },
   {
     id: 'cert4',
+    sessionId: 'ts1',
     participantId: 'p1',
     participantName: 'Alice Chen',
     company: 'Acme Corp',
@@ -43,6 +47,7 @@ export const certificates: Certificate[] = [
   },
   {
     id: 'cert5',
+    sessionId: 'ts1',
     participantId: 'p9',
     participantName: 'Iris Nakamura',
     company: 'Acme Corp',
@@ -53,6 +58,7 @@ export const certificates: Certificate[] = [
   },
   {
     id: 'cert6',
+    sessionId: 'ts2',
     participantId: 'p7',
     participantName: 'Grace Liu',
     company: 'DataPulse',
@@ -63,6 +69,7 @@ export const certificates: Certificate[] = [
   },
   {
     id: 'cert7',
+    sessionId: 'ts1',
     participantId: 'p2',
     participantName: 'Bob Martinez',
     company: 'Acme Corp',
@@ -73,6 +80,7 @@ export const certificates: Certificate[] = [
   },
   {
     id: 'cert8',
+    sessionId: 'ts2',
     participantId: 'p6',
     participantName: 'Frank Lee',
     company: 'Cloudify',
@@ -83,6 +91,7 @@ export const certificates: Certificate[] = [
   },
   {
     id: 'cert9',
+    sessionId: 'ts2',
     participantId: 'p5',
     participantName: 'Emma Wilson',
     company: 'Cloudify',
@@ -93,6 +102,7 @@ export const certificates: Certificate[] = [
   },
   {
     id: 'cert10',
+    sessionId: 'ts3',
     participantId: 'p8',
     participantName: 'Henry Torres',
     company: 'DataPulse',

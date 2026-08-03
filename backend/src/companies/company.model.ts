@@ -22,9 +22,6 @@ export class Company {
   @Column('int', { default: 0 })
   participantCount: number;
 
-  @Column('int', { default: 0 })
-  completionPct: number;
-
   @Column({ type: 'varchar', default: 'pending' })
   engagementStatus: EngagementStatus;
 }

@@ -8,7 +8,6 @@ export const companies: Company[] = [
     contactName: 'Sarah Johnson',
     contactEmail: 'sarah@acme.com',
     participantCount: 3,
-    completionPct: 67,
     engagementStatus: 'active',
   },
   {
@@ -18,7 +17,6 @@ export const companies: Company[] = [
     contactName: 'Michael Chen',
     contactEmail: 'mchen@bytewave.io',
     participantCount: 3,
-    completionPct: 85,
     engagementStatus: 'active',
   },
   {
@@ -28,7 +26,6 @@ export const companies: Company[] = [
     contactName: 'Lisa Park',
     contactEmail: 'lpark@cloudify.net',
     participantCount: 2,
-    completionPct: 42,
     engagementStatus: 'at-risk',
   },
   {
@@ -38,7 +35,6 @@ export const companies: Company[] = [
     contactName: 'Tom Rivera',
     contactEmail: 'trivera@datapulse.co',
     participantCount: 2,
-    completionPct: 55,
     engagementStatus: 'pending',
   },
 ];

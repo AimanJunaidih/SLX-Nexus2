@@ -8,6 +8,9 @@ export class Certificate {
   id: string;
 
   @Column()
+  sessionId: string;
+
+  @Column()
   participantId: string;
 
   @Column()

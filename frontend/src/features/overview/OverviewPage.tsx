@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import {
   IconUsers,
   IconBuilding,
-  IconChartBar,
   IconFiles,
   IconBook,
   IconPresentation,
@@ -10,25 +9,22 @@ import {
 } from '@tabler/icons-react';
 import StatCard from '@/shared/ui/StatCard';
 import Panel from '@/shared/ui/Panel';
-import Pill from '@/shared/ui/Pill';
 import ProgressBar from '@/shared/ui/ProgressBar';
 import AvatarBadge from '@/shared/ui/AvatarBadge';
 import { getParticipants } from '@/data-access/participants';
 import { getCompanies } from '@/data-access/companies';
 import { getMaterials } from '@/data-access/materials';
-import { getScheduleData } from '@/data-access/scheduleData';
+import { getTrainingSessions } from '@/data-access/training-sessions';
 import type { Participant } from '@/entities/participant';
 import type { Company } from '@/entities/company';
 import type { Material } from '@/entities/material';
-import type { ScheduleDay } from '@/entities/schedule';
-import { getCompletionPct, getParticipantStatusLabel } from '@/entities/participant';
-import { completionToPill } from '@/shared/constants/status';
+import type { TrainingSession } from '@/entities/training-session';
 
 export default function OverviewPage() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [materials, setMaterials] = useState<Material[]>([]);
-  const [scheduleData, setScheduleData] = useState<ScheduleDay[]>([]);
+  const [trainingSessions, setTrainingSessions] = useState<TrainingSession[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,12 +32,12 @@ export default function OverviewPage() {
       getParticipants(),
       getCompanies(),
       getMaterials(),
-      getScheduleData(),
+      getTrainingSessions(),
     ]).then(([pData, cData, mData, sData]) => {
       setParticipants(pData);
       setCompanies(cData);
       setMaterials(mData);
-      setScheduleData(sData);
+      setTrainingSessions(sData);
       setLoading(false);
     });
   }, []);
@@ -50,16 +46,10 @@ export default function OverviewPage() {
 
   const totalParticipants = participants.length;
   const totalCompanies = companies.length;
-  const avgCompletion = participants.length > 0 ? Math.round(
-    participants.reduce((sum, p) => sum + getCompletionPct(p.mods), 0) / participants.length,
-  ) : 0;
   const readyMaterials = materials.filter((m) => m.status === 'ready').length;
 
-  const upcomingEvents = scheduleData
-    .filter((d) => d.status === 'today' || d.status === 'upcoming')
-    .flatMap((d) =>
-      d.events.map((e) => ({ ...e, dayLabel: d.label, date: d.date })),
-    )
+  const upcomingSessions = trainingSessions
+    .filter((s) => s.status === 'in-progress' || s.status === 'upcoming')
     .slice(0, 5);
 
   const phases = [
@@ -110,12 +100,6 @@ export default function OverviewPage() {
           label="Enrolled Companies"
         />
         <StatCard
-          icon={<IconChartBar size={20} stroke={1.8} />}
-          iconColor={avgCompletion >= 70 ? 'green' : avgCompletion >= 40 ? 'yellow' : 'red'}
-          value={`${avgCompletion}%`}
-          label="Avg Completion Rate"
-        />
-        <StatCard
           icon={<IconFiles size={20} stroke={1.8} />}
           iconColor="teal"
           value={readyMaterials}
@@ -139,28 +123,32 @@ export default function OverviewPage() {
           </div>
         </Panel>
 
-        <Panel title="Upcoming Events" subtitle="Next sessions on the schedule">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {upcomingEvents.length === 0 && (
-              <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>No upcoming events.</p>
+        <Panel title="Upcoming Sessions" subtitle="Next training sessions">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {upcomingSessions.length === 0 && (
+              <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>No upcoming sessions.</p>
             )}
-            {upcomingEvents.map((ev) => (
-              <div key={ev.id} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+            {upcomingSessions.map((session) => (
+              <div key={session.id} style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                 <div
                   style={{
-                    minWidth: 40,
-                    fontSize: 11,
-                    color: 'var(--text-muted)',
-                    fontWeight: 500,
-                    paddingTop: 2,
+                    fontSize: 10,
+                    padding: '4px 8px',
+                    borderRadius: 12,
+                    fontWeight: 600,
+                    backgroundColor: session.status === 'in-progress' ? '#eff6ff' : '#f3f4f6',
+                    color: session.status === 'in-progress' ? '#2563eb' : '#4b5563',
+                    textTransform: 'uppercase',
+                    minWidth: 70,
+                    textAlign: 'center',
                   }}
                 >
-                  {ev.time}
+                  {session.status.replace('-', ' ')}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)' }}>{ev.title}</div>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)' }}>{session.name}</div>
                   <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
-                    {ev.dayLabel} · {ev.date}
+                    {session.date}
                   </div>
                 </div>
               </div>
@@ -176,15 +164,10 @@ export default function OverviewPage() {
               <th>Participant</th>
               <th>Company</th>
               <th>Role</th>
-              <th>Progress</th>
-              <th>Status</th>
             </tr>
           </thead>
           <tbody>
             {participants.map((p) => {
-              const pct = getCompletionPct(p.mods);
-              const label = getParticipantStatusLabel(pct);
-              const pillVariant = completionToPill(pct);
               return (
                 <tr key={p.id}>
                   <td>
@@ -195,12 +178,6 @@ export default function OverviewPage() {
                   </td>
                   <td className="table-cell-muted">{p.company}</td>
                   <td className="table-cell-muted">{p.role}</td>
-                  <td style={{ minWidth: 140 }}>
-                    <ProgressBar value={pct} showLabel />
-                  </td>
-                  <td>
-                    <Pill variant={pillVariant}>{label}</Pill>
-                  </td>
                 </tr>
               );
             })}

@@ -1,184 +1,203 @@
 import { useState, useEffect } from 'react';
-import { IconCircleCheck, IconClock, IconFiles, IconChartBar } from '@tabler/icons-react';
+import { useNavigate } from 'react-router-dom';
+import {
+  IconPresentation,
+  IconBuilding,
+  IconUsers,
+  IconClipboardList,
+} from '@tabler/icons-react';
 import StatCard from '@/shared/ui/StatCard';
-import Panel from '@/shared/ui/Panel';
-import Pill from '@/shared/ui/Pill';
-import ProgressBar from '@/shared/ui/ProgressBar';
 import AvatarBadge from '@/shared/ui/AvatarBadge';
-import { getParticipants } from '@/data-access/participants';
-import { getMaterials } from '@/data-access/materials';
-import type { Participant } from '@/entities/participant';
-import type { Material } from '@/entities/material';
-import { getCompletionPct } from '@/entities/participant';
-
-const CHECKLIST = [
-  'Access credentials distributed to all participants',
-  'Pre-training materials shared via portal',
-  'Pre-assessment survey sent',
-  'Session schedule confirmed with all companies',
-  'Tech check completed for remote participants',
-  'Manager notification emails dispatched',
-  'LMS accounts activated',
-];
+import { getTrainingSessions } from '@/data-access/training-sessions';
+import type { TrainingSession, SessionCompany } from '@/entities/training-session';
 
 export default function PreTrainingPage() {
-  const [checked, setChecked] = useState<Set<number>>(new Set([0, 1, 2]));
-  const [participants, setParticipants] = useState<Participant[]>([]);
-  const [materials, setMaterials] = useState<Material[]>([]);
+  const navigate = useNavigate();
+  const [sessions, setSessions] = useState<TrainingSession[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedSessionId, setSelectedSessionId] = useState<string>('');
 
   useEffect(() => {
-    Promise.all([getParticipants(), getMaterials()]).then(([pData, mData]) => {
-      setParticipants(pData);
-      setMaterials(mData);
+    getTrainingSessions().then((data) => {
+      setSessions(data);
+      if (data.length > 0) setSelectedSessionId(data[0].id);
       setLoading(false);
     });
   }, []);
 
+  const selectedSession = sessions.find((s) => s.id === selectedSessionId);
+  const allParticipants = selectedSession?.companies.flatMap((c) => c.participants) ?? [];
+
   if (loading) return <div>Loading...</div>;
-
-  const toggle = (i: number) => {
-    setChecked((prev) => {
-      const next = new Set(prev);
-      if (next.has(i)) next.delete(i);
-      else next.add(i);
-      return next;
-    });
-  };
-
-  const preReady = participants.filter((p) => p.mods[0] === 2 && p.mods[1] === 2).length;
-  const prePending = participants.length - preReady;
-  const readyMaterials = materials.filter((m) => m.status === 'ready').length;
-  const avgScore = participants.length > 0 ? Math.round(participants.reduce((s, p) => s + p.score, 0) / participants.length) : 0;
 
   return (
     <>
       <div className="page-header">
         <h1 className="page-title">Pre-Training</h1>
-        <p className="page-subtitle">Readiness checks, materials, and participant preparedness.</p>
+        <p className="page-subtitle">Prepare companies and participants before each training session.</p>
       </div>
 
-      <div className="stat-grid">
-        <StatCard
-          icon={<IconCircleCheck size={20} stroke={1.8} />}
-          iconColor="green"
-          value={preReady}
-          label="Participants Ready"
-          sub={`of ${participants.length}`}
-        />
-        <StatCard
-          icon={<IconClock size={20} stroke={1.8} />}
-          iconColor="yellow"
-          value={prePending}
-          label="Still Pending"
-        />
-        <StatCard
-          icon={<IconFiles size={20} stroke={1.8} />}
-          iconColor="teal"
-          value={readyMaterials}
-          label="Materials Ready"
-          sub={`of ${materials.length}`}
-        />
-        <StatCard
-          icon={<IconChartBar size={20} stroke={1.8} />}
-          iconColor={avgScore >= 70 ? 'green' : 'yellow'}
-          value={`${avgScore}%`}
-          label="Pre-Assessment Avg"
-        />
-      </div>
-
-      <div className="content-grid">
-        <Panel
-          title="Pre-Training Checklist"
-          subtitle={`${checked.size} of ${CHECKLIST.length} completed`}
-        >
-          <div className="checklist">
-            {CHECKLIST.map((item, i) => (
-              <div
-                key={i}
-                className={`checklist-item${checked.has(i) ? ' checked' : ''}`}
-                onClick={() => toggle(i)}
-                role="checkbox"
-                aria-checked={checked.has(i)}
-                tabIndex={0}
-                onKeyDown={(e) => e.key === 'Enter' && toggle(i)}
-              >
-                <div className="checklist-check">
-                  {checked.has(i) && (
-                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                      <path d="M1 4L3.5 6.5L9 1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  )}
-                </div>
-                <span className="checklist-text">{item}</span>
-              </div>
+      {/* Session Selector */}
+      <div style={{
+        background: 'white', borderRadius: 8, border: '1px solid #e5e7eb',
+        padding: '16px 20px', marginBottom: 16,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap' }}>
+            Current Session:
+          </label>
+          <select
+            value={selectedSessionId}
+            onChange={(e) => setSelectedSessionId(e.target.value)}
+            style={{
+              padding: '8px 14px', border: '1px solid #d1d5db', borderRadius: 6,
+              fontSize: 14, outline: 'none', background: 'white', color: '#374151',
+              minWidth: 200,
+            }}
+          >
+            {sessions.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name} — {s.date}
+              </option>
             ))}
-          </div>
-        </Panel>
-
-        <Panel title="Participant Readiness" subtitle="Modules 1–2 completion">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {participants.map((p) => {
-              const m1 = p.mods[0];
-              const m2 = p.mods[1];
-              const pct = Math.round(([m1, m2].filter((m) => m === 2).length / 2) * 100);
-              const ready = m1 === 2 && m2 === 2;
-              return (
-                <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <AvatarBadge name={p.name} color={p.avatarColor} size="sm" />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                      <span style={{ fontSize: 12, fontWeight: 500 }}>{p.name}</span>
-                      <Pill variant={ready ? 'ok' : 'warn'}>{ready ? 'Ready' : 'Pending'}</Pill>
-                    </div>
-                    <ProgressBar value={pct} size="sm" />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </Panel>
+          </select>
+        </div>
       </div>
 
-      <Panel title="Full Pre-Training Status" className="full-panel" bodyClass="panel-body-sm">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Participant</th>
-              <th>Company</th>
-              <th>Module 1</th>
-              <th>Module 2</th>
-              <th>Overall Progress</th>
-            </tr>
-          </thead>
-          <tbody>
-            {participants.map((p) => {
-              const MOD_LABELS = ['Pending', 'In Progress', 'Complete'];
-              const MOD_PILLS: Array<'warn' | 'info' | 'ok'> = ['warn', 'info', 'ok'];
-              return (
-                <tr key={p.id}>
-                  <td>
-                    <div className="table-name-cell">
-                      <AvatarBadge name={p.name} color={p.avatarColor} />
-                      <span className="table-name-primary">{p.name}</span>
-                    </div>
-                  </td>
-                  <td className="table-cell-muted">{p.company}</td>
-                  <td>
-                    <Pill variant={MOD_PILLS[p.mods[0]]}>{MOD_LABELS[p.mods[0]]}</Pill>
-                  </td>
-                  <td>
-                    <Pill variant={MOD_PILLS[p.mods[1]]}>{MOD_LABELS[p.mods[1]]}</Pill>
-                  </td>
-                  <td style={{ minWidth: 140 }}>
-                    <ProgressBar value={getCompletionPct(p.mods)} showLabel />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </Panel>
+      {selectedSession && (
+        <>
+          <div className="stat-grid stat-grid-3">
+            <StatCard
+              icon={<IconPresentation size={20} stroke={1.8} />}
+              iconColor="blue"
+              value={selectedSession.name}
+              label={selectedSession.date}
+            />
+            <StatCard
+              icon={<IconBuilding size={20} stroke={1.8} />}
+              iconColor="teal"
+              value={selectedSession.companies.length}
+              label="Companies"
+            />
+            <StatCard
+              icon={<IconUsers size={20} stroke={1.8} />}
+              iconColor="blue"
+              value={allParticipants.length}
+              label="Total Participants"
+            />
+          </div>
+
+          {/* Company Cards */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 16 }}>
+            {selectedSession.companies.map((company) => (
+              <CompanyCard key={company.id} company={company} sessionId={selectedSession.id} />
+            ))}
+
+            {selectedSession.companies.length === 0 && (
+              <div style={{
+                background: 'white', borderRadius: 8, border: '1px solid #e5e7eb',
+                padding: 32, textAlign: 'center', color: '#9ca3af', fontSize: 14,
+              }}>
+                No companies assigned to this session yet.
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {!selectedSession && sessions.length > 0 && (
+        <div style={{
+          background: 'white', borderRadius: 8, border: '1px solid #e5e7eb',
+          padding: 32, textAlign: 'center', color: '#9ca3af', fontSize: 14,
+        }}>
+          Select a training session to begin.
+        </div>
+      )}
     </>
+  );
+}
+
+function CompanyCard({ company, sessionId }: { company: SessionCompany; sessionId: string }) {
+  const navigate = useNavigate();
+  const [selectedParticipantId, setSelectedParticipantId] = useState<string>('');
+
+  useEffect(() => {
+    if (company.participants.length > 0) {
+      setSelectedParticipantId(company.participants[0].id);
+    }
+  }, [company.participants]);
+
+  const selectedParticipant = company.participants.find((p) => p.id === selectedParticipantId);
+
+  return (
+    <div style={{
+      background: 'white', borderRadius: 8, border: '1px solid #e5e7eb',
+      overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+    }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 10,
+        padding: '12px 16px', background: '#f9fafb', borderBottom: '1px solid #e5e7eb',
+      }}>
+        <IconBuilding size={16} stroke={1.8} color="#6b7280" />
+        <span style={{ fontWeight: 600, fontSize: 14, color: '#111827' }}>{company.name}</span>
+        <span style={{ fontSize: 12, color: '#9ca3af' }}>
+          {company.participants.length} participant{company.participants.length !== 1 ? 's' : ''}
+        </span>
+        <button
+          onClick={() => navigate(`/pre-training/${sessionId}/${company.id}/tasks`)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '5px',
+            padding: '6px 12px', background: '#4f46e5', color: 'white',
+            border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600, fontSize: 12,
+            marginLeft: 'auto',
+          }}
+        >
+          <IconClipboardList size={14} />
+          View Tasks
+        </button>
+      </div>
+
+      <div style={{ padding: '16px' }}>
+        <div style={{ marginBottom: 12 }}>
+          <label style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 6 }}>
+            Select Participant
+          </label>
+          <select
+            value={selectedParticipantId}
+            onChange={(e) => setSelectedParticipantId(e.target.value)}
+            style={{
+              width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6,
+              fontSize: 13, outline: 'none', background: 'white', color: '#374151',
+            }}
+          >
+            {company.participants.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name} — {p.role}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {selectedParticipant && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 12,
+            padding: '10px 12px', background: '#f9fafb', borderRadius: 6,
+          }}>
+            <AvatarBadge name={selectedParticipant.name} color={selectedParticipant.avatarColor} size="sm" />
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 500, color: '#111827' }}>{selectedParticipant.name}</div>
+              <div style={{ fontSize: 11, color: '#9ca3af' }}>{selectedParticipant.role}</div>
+            </div>
+          </div>
+        )}
+
+        {!selectedParticipant && (
+          <div style={{ fontSize: 13, color: '#9ca3af', textAlign: 'center', padding: 12 }}>
+            No participants in this company.
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

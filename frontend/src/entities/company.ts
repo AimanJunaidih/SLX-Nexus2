@@ -7,6 +7,5 @@ export interface Company {
   contactName: string;
   contactEmail: string;
   participantCount: number;
-  completionPct: number;
   engagementStatus: EngagementStatus;
 }

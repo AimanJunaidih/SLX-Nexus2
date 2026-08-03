@@ -25,6 +25,9 @@ export class Material {
 
   @Column()
   owner: string;
+
+  @Column({ nullable: true })
+  filePath?: string;
 }
 
 export function formatFileSize(kb: number): string {
